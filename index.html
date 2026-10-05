@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trắc nghiệm ôn thi Cao học KTQD</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#15181d; --muted:#6b7280;
+    --line:#e3e6eb; --brand:#1f5fd6; --brand-soft:#e8f0fe;
+    --ok:#0f8a52; --ok-soft:#e4f6ec; --bad:#c62f3b; --bad-soft:#fdeaec;
+    --sol:#fff8e6; --sol-line:#f0d89a;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1116; --card:#161a21; --ink:#e7eaef; --muted:#9aa3b2;
+      --line:#262c36; --brand:#6ea8fe; --brand-soft:#1b2838;
+      --ok:#4ade80; --ok-soft:#14301f; --bad:#f87171; --bad-soft:#331718;
+      --sol:#241f12; --sol-line:#5a4a22;
+    }
+  }
+  :root[data-theme="dark"]{
+      --bg:#0e1116; --card:#161a21; --ink:#e7eaef; --muted:#9aa3b2;
+      --line:#262c36; --brand:#6ea8fe; --brand-soft:#1b2838;
+      --ok:#4ade80; --ok-soft:#14301f; --bad:#f87171; --bad-soft:#331718;
+      --sol:#241f12; --sol-line:#5a4a22;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    line-height:1.55;-webkit-text-size-adjust:100%}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 80px}
+  header{text-align:center;margin-bottom:18px}
+  h1{font-size:clamp(20px,4.5vw,28px);margin:0 0 6px;letter-spacing:-.3px}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  .toolbar{position:sticky;top:0;z-index:20;background:var(--bg);
+    padding:10px 0;margin-bottom:10px;border-bottom:1px solid var(--line)}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+  .tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);
+    padding:8px 14px;border-radius:999px;font-size:14px;cursor:pointer;white-space:nowrap}
+  .tab[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+  .statbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:14px}
+  .bar{flex:1 1 160px;height:8px;background:var(--line);border-radius:99px;overflow:hidden;min-width:120px}
+  .bar>i{display:block;height:100%;width:0;background:var(--brand);border-radius:99px;transition:width .3s}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px;color:var(--muted)}
+  .pill b{color:var(--ink)}
+  .btn{border:1px solid var(--line);background:var(--card);color:var(--ink);
+    border-radius:10px;padding:7px 13px;font-size:13.5px;cursor:pointer}
+  .btn:hover{border-color:var(--brand);color:var(--brand)}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 16px 14px;margin-bottom:14px}
+  .qhead{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+  .num{flex:0 0 auto;background:var(--brand-soft);color:var(--brand);font-weight:700;
+    font-size:13px;border-radius:8px;padding:3px 9px;margin-top:2px}
+  .qtext{flex:1;font-size:15.5px}
+  .opts{display:grid;gap:8px}
+  @media(min-width:620px){.opts{grid-template-columns:1fr 1fr}}
+  .opt{display:flex;gap:9px;align-items:flex-start;text-align:left;width:100%;
+    border:1px solid var(--line);background:transparent;color:var(--ink);
+    border-radius:10px;padding:9px 11px;font-size:14.5px;cursor:pointer;
+    font-family:inherit;line-height:1.45;transition:background .15s,border-color .15s}
+  .opt:hover:not(:disabled){border-color:var(--brand);background:var(--brand-soft)}
+  .opt:disabled{cursor:default}
+  .key{flex:0 0 auto;font-weight:700;color:var(--muted);min-width:16px}
+  .opt.correct{background:var(--ok-soft);border-color:var(--ok)}
+  .opt.correct .key{color:var(--ok)}
+  .opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+  .opt.wrong .key{color:var(--bad)}
+  .acts{margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .verdict{font-size:13.5px;font-weight:600}
+  .verdict.ok{color:var(--ok)} .verdict.no{color:var(--bad)}
+  .sol{margin-top:12px;background:var(--sol);border:1px solid var(--sol-line);
+    border-left:4px solid var(--sol-line);border-radius:10px;padding:12px 14px;font-size:14.5px}
+  .sol[hidden]{display:none}
+  .sol h4{margin:0 0 7px;font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+  .sol p{margin:0 0 7px} .sol p:last-child{margin:0}
+  .sol .ans{font-weight:700;color:var(--ok)}
+  .frac{display:inline-flex;flex-direction:column;vertical-align:-0.55em;text-align:center;
+    font-size:.85em;line-height:1.1;margin:0 2px}
+  .frac>span:first-child{border-bottom:1px solid currentColor;padding:0 3px}
+  .frac>span:last-child{padding:0 3px}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;margin-top:28px}
+  .done{background:var(--brand-soft);border:1px solid var(--brand);color:var(--brand);
+    border-radius:var(--radius);padding:14px;text-align:center;font-weight:600;margin-bottom:14px}
+  .done[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Ôn thi Cao học Kinh tế Quốc dân</h1>
+    <p class="sub">76 câu trắc nghiệm · Số học · Đại số · Hàm số &amp; Dãy số</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div class="statbar">
+      <div class="bar"><i id="barFill"></i></div>
+      <span class="pill">Đã làm <b id="doneCount">0</b>/<b id="totalCount">0</b></span>
+      <span class="pill">Đúng <b id="okCount">0</b></span>
+      <button class="btn" id="showAll">Hiện tất cả lời giải</button>
+      <button class="btn" id="reset">Làm lại</button>
+    </div>
+  </div>
+
+  <div class="done" id="doneBox" hidden></div>
+  <main id="list"></main>
+
+  <footer>Soạn từ tài liệu ôn thi · Chọn đáp án rồi bấm <b>Xem lời giải</b> để đối chiếu cách làm.</footer>
+</div>
+
+<script>
+const F = (a,b)=>`<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+
+const DATA = [
+{
+  topic:"Buổi 1 — Số học",
+  questions:[
+  {q:"Có bao nhiêu số nguyên dương lẻ từ 35 đến 2022?",o:["990","992","994","1000"],a:2,
+   s:`Các số lẻ: 35; 37; …; 2021 — cấp số cộng công sai 2.<br>Số phần tử = (2021 − 35) : 2 + 1 = 1986 : 2 + 1 = <b>994</b>.`},
+  {q:"Có 24 cây được trồng cách đều nhau dọc theo một đoạn đường. Khoảng cách giữa cây thứ nhất đến cây thứ tám là 56m. Hỏi khoảng cách giữa cây thứ nhất và cây cuối cùng bằng bao nhiêu?",o:["184m","192m","206m","212m"],a:0,
+   s:`Từ cây 1 đến cây 8 có 7 khoảng → mỗi khoảng = 56 : 7 = 8m.<br>Từ cây 1 đến cây 24 có 23 khoảng → 23 × 8 = <b>184m</b>.`},
+  {q:"Khi chia số nguyên dương n cho 12 được số dư là 6. Hỏi số dư của phép chia n cho 6 bằng bao nhiêu?",o:["1","4","2","0"],a:3,
+   s:`n = 12k + 6 = 6(2k + 1) → n chia hết cho 6.<br>Vậy số dư là <b>0</b>.`},
+  {q:"Khi chia số nguyên dương a cho 8 được số dư là 3. Hỏi số dư của phép chia 4 × a cho 8 bằng bao nhiêu?",o:["5","3","6","4"],a:3,
+   s:`a = 8k + 3 → 4a = 32k + 12 = 8(4k + 1) + 4.<br>Vậy số dư là <b>4</b>.`},
+  {q:"Cho i² = −1, khi đó số hạng nào dưới đây bằng −1?",o:["i<sup>18</sup>","i<sup>20</sup>","i<sup>17</sup>","i<sup>19</sup>"],a:0,
+   s:`Lũy thừa của i tuần hoàn chu kỳ 4: i¹=i, i²=−1, i³=−i, i⁴=1.<br>18 chia 4 dư 2 → i<sup>18</sup> = i² = <b>−1</b>.<br>(i²⁰=1; i¹⁷=i; i¹⁹=−i)`},
+  {q:"Giả sử tiền lãi I của khoản vay P trong n năm với lãi suất mỗi năm là r được tính: I = P × r × n. Tiền lãi của khoản vay P triệu đồng với kì hạn 3 năm và lãi suất 7%/năm là 42 triệu đồng. Khi đó P bằng:",o:["100 triệu đồng","200 triệu đồng","350 triệu đồng","600 triệu đồng"],a:1,
+   s:`I = P × r × n → 42 = P × 0,07 × 3 = 0,21P<br>→ P = 42 : 0,21 = <b>200 triệu đồng</b>.`},
+  {q:"Số nào trong các số sau là tổng của tất cả các ước số dương của 20?",o:["20","36","42","48"],a:2,
+   s:`Ước dương của 20: 1; 2; 4; 5; 10; 20.<br>Tổng = 1+2+4+5+10+20 = <b>42</b>.`},
+  {q:"Số người của một lớp học có thể chia đều thành 9 đội hoặc chia đều thành 12 đội. Hỏi lớp đó có tối thiểu bao nhiêu người?",o:["20","36","48","24"],a:1,
+   s:`Số người chia hết cho cả 9 và 12 → là bội chung.<br>Tối thiểu = BCNN(9; 12) = <b>36</b>.`},
+  {q:"Bao nhiêu phần trăm của 30 thì bằng 12?",o:["20%","30%","40%","12%"],a:2,
+   s:`Tỉ số phần trăm = ${F('12','30')} × 100% = <b>40%</b>.`},
+  {q:`Nếu ${F('1','3')} của 2x bằng 5 thì ${F('2','3')} của 4x bằng bao nhiêu?`,o:["10","20","15","5"],a:1,
+   s:`${F('1','3')} · 2x = 5 → 2x = 15 → 4x = 30.<br>${F('2','3')} · 30 = <b>20</b>.`},
+  {q:"Một cửa hàng theo kế hoạch bán được 12 tấn gạo. Thực tế cửa hàng bán được 15 tấn. Hỏi cửa hàng đã thực hiện được bao nhiêu phần trăm kế hoạch?",o:["25%","125%","75%","145%"],a:1,
+   s:`${F('15','12')} × 100% = 1,25 × 100% = <b>125%</b>.`},
+  {q:"Giá một hộp bánh sau khi tính thuế 8% là 54 nghìn đồng. Hỏi giá hộp bánh đó trước thuế là bao nhiêu?",o:["50 nghìn đồng","52 nghìn đồng","53,5 nghìn đồng","49,7 nghìn đồng"],a:0,
+   s:`Giá trước thuế × 1,08 = 54<br>→ Giá trước thuế = 54 : 1,08 = <b>50 nghìn đồng</b>.`},
+  {q:"Ba người công nhân làm được 30 cái bánh trong một giờ. Hỏi trong hai giờ, 5 người công nhân làm được bao nhiêu cái bánh?",o:["150 cái","50 cái","200 cái","100 cái"],a:3,
+   s:`1 người / 1 giờ: 30 : 3 = 10 cái.<br>5 người × 2 giờ: 10 × 5 × 2 = <b>100 cái</b>.`},
+  {q:"Biết 6 người làm được 6 cái áo trong 6 phút. Giả sử năng suất mỗi người như nhau, hỏi cần bao nhiêu người để làm xong 60 cái áo trong 1 giờ?",o:["6","10","12","60"],a:0,
+   s:`6 người / 6 áo / 6 phút → 1 người làm 1 áo trong 6 phút.<br>Trong 60 phút, 1 người làm 10 áo → cần 60 : 10 = <b>6 người</b>.`},
+  {q:"Giá một cái chăn giảm từ 800 nghìn đồng xuống 600 nghìn đồng. Một bộ ga trải giường giá gốc 200 nghìn đồng được chiết khấu bằng phần trăm giảm giá chăn. Hỏi giá sau giảm của bộ ga là bao nhiêu?",o:["150 nghìn đồng","140 nghìn đồng","180 nghìn đồng","190 nghìn đồng"],a:0,
+   s:`Phần trăm giảm của chăn = ${F('800−600','800')} = 25%.<br>Ga: 200 × (1 − 25%) = <b>150 nghìn đồng</b>.`},
+  {q:"Nếu pha 3 lít nước đường với 1 lít nước chanh và 5 lít nước lọc thì tỉ lệ nước đường trong hỗn hợp là bao nhiêu?",o:[F('1','3'),F('1','4'),F('1','2'),F('1','5')],a:0,
+   s:`Tổng hỗn hợp = 3 + 1 + 5 = 9 lít.<br>Tỉ lệ nước đường = ${F('3','9')} = <b>${F('1','3')}</b>.`},
+  {q:"Trong bài kiểm tra có một số câu hỏi với số điểm như nhau. Nam đã trả lời sai 10 câu và điểm cuối cùng của Nam bằng 60% tổng số điểm tối đa. Vậy bài kiểm tra đó có tất cả bao nhiêu câu hỏi?",o:["20","25","30","40"],a:1,
+   s:`Gọi n là số câu. Nam đúng n − 10 câu → ${F('n−10','n')} = 60% = 0,6<br>n − 10 = 0,6n → 0,4n = 10 → n = <b>25</b>.`},
+  {q:"An thuê một chiếc ô tô với giá 18$ cộng với 0,10$/km. Linh thuê ô tô khác với giá 25$ cộng với 0,05$/km. Nếu mỗi người đi được d km và trả tổng số tiền thuê bằng nhau, hỏi d bằng bao nhiêu?",o:["100km","120km","140km","200km"],a:2,
+   s:`18 + 0,10d = 25 + 0,05d<br>0,05d = 7 → d = <b>140 km</b>.`},
+  {q:"Một chiếc xe đạp có giá 2 triệu đồng. Nay được hạ giá 15%. Hỏi hiện tại giá bán của xe đó là bao nhiêu?",o:["1,5 triệu đồng","1,7 triệu đồng","1,8 triệu đồng","1,85 triệu đồng"],a:1,
+   s:`2 × (1 − 0,15) = 2 × 0,85 = <b>1,7 triệu đồng</b>.`},
+  {q:"Một lớp có 25% học sinh giỏi, 55% học sinh khá và còn lại là học sinh trung bình. Biết lớp có 5 bạn học sinh trung bình. Hỏi lớp ấy có bao nhiêu học sinh?",o:["20","25","30","40"],a:1,
+   s:`Tỉ lệ trung bình = 100% − 25% − 55% = 20%.<br>Sĩ số = 5 : 0,2 = <b>25 học sinh</b>.`},
+  {q:"Bố mua hai đôi giày cho Tiến nhưng đều không vừa nên mẹ phải mang bán hai đôi giày đó đi. Mỗi đôi đều bán với giá 300000 đồng. Trong đó một đôi bán nhiều hơn giá mua 20% và đôi kia bán ít hơn giá mua 20%. Hỏi mẹ Tiến bán lãi hay lỗ bao nhiêu tiền?",o:["Không lãi, không lỗ","Lãi 50000 đồng","Lỗ 25000 đồng","Lãi 10000 đồng"],a:2,
+   s:`Đôi lãi 20%: giá mua = 300000 : 1,2 = 250000 → lãi 50000.<br>Đôi lỗ 20%: giá mua = 300000 : 0,8 = 375000 → lỗ 75000.<br>Tổng: 50000 − 75000 = <b>lỗ 25000 đồng</b>.`},
+  {q:"Chữ số hàng đơn vị của số n = 33<sup>43</sup> + 43<sup>33</sup> là số nào?",o:["6","4","0","2"],a:2,
+   s:`Chữ số tận cùng của lũy thừa cơ số 3 tuần hoàn: 3; 9; 7; 1 (chu kỳ 4).<br>33<sup>43</sup>: 43 chia 4 dư 3 → tận cùng <b>7</b>.<br>43<sup>33</sup>: 33 chia 4 dư 1 → tận cùng <b>3</b>.<br>7 + 3 = 10 → chữ số hàng đơn vị là <b>0</b>.`},
+  {q:`Hỏi ${F('5','8')} của 24 bằng với ${F('15','7')} của số nào?`,o:["8","7",F('225','7'),"15"],a:1,
+   s:`${F('5','8')} × 24 = 15.<br>${F('15','7')} · x = 15 → x = 15 × ${F('7','15')} = <b>7</b>.`},
+  {q:`Một khách du lịch đổi 500 USD sang Euro với tỉ lệ 0,8 Euro với 1 USD và anh ấy tiêu hết ${F('3','4')} số Euro đổi được. Nếu anh ấy đổi số Euro còn lại sang USD với tỉ lệ 1,2 USD lấy 1 Euro thì số USD anh ấy nhận được là bao nhiêu?`,o:["80 USD","140 USD","100 USD","120 USD"],a:3,
+   s:`500 USD × 0,8 = 400 Euro.<br>Còn lại: 400 × (1 − ${F('3','4')}) = 100 Euro.<br>Đổi lại: 100 × 1,2 = <b>120 USD</b>.`},
+  {q:"Theo quy định, sinh viên thuộc hộ nghèo được vay vốn ngân hàng Chính sách xã hội với mức tối đa 800 nghìn đồng, lãi suất 0,5% mỗi tháng. Nếu một sinh viên vay ngân hàng ở mức tối đa thì sau 4 năm, sinh viên đó phải trả ngân hàng tổng cộng bao nhiêu tiền?",o:["192 nghìn đồng","198 nghìn đồng","38,592 triệu đồng","38,529 triệu đồng"],a:2,
+   s:`4 năm = 48 tháng → tổng gốc vay = 800 × 48 = 38 400 nghìn đồng = 38,4 triệu.<br>Cộng lãi 0,5%: 38 400 × 1,005 = 38 592 nghìn đồng = <b>38,592 triệu đồng</b>.`},
+  {q:"Mặt đất chuyển động xung quanh Mặt Trời với tốc độ khoảng 18,5 miles/giây. Hỏi tốc độ tính theo giờ là khoảng bao nhiêu miles/giờ?",o:["1080","64800","1168","66600"],a:3,
+   s:`1 giờ = 3600 giây.<br>18,5 × 3600 = <b>66 600 miles/giờ</b>.`},
+  {q:"Trên bản đồ, khoảng cách 3cm thể hiện quãng đường đi thực tế là 45km. Khoảng cách từ điểm A tới điểm B là 55cm. Hỏi khoảng cách thực tế giữa hai điểm A và B là bao nhiêu?",o:["600km","750km","825km","925km"],a:2,
+   s:`Tỉ lệ: 1cm ↔ 45 : 3 = 15km.<br>55 × 15 = <b>825 km</b>.`},
+  {q:"Trong dãy số tự nhiên từ 31 đến 65 có tất cả bao nhiêu số nguyên tố?",o:["8","9","10","11"],a:0,
+   s:`Các số nguyên tố: 31; 37; 41; 43; 47; 53; 59; 61.<br>Đếm được <b>8</b> số.`},
+  {q:"Nếu x và y là các số nguyên tố thì giá trị nào trong các giá trị sau không thể là tổng của x và y?",o:["9","13","16","23"],a:3,
+   s:`9 = 2 + 7 ✔ · 13 = 2 + 11 ✔ · 16 = 3 + 13 ✔<br>23 là số lẻ → phải có một số hạng là 2 → số kia = 21 = 3 × 7, không nguyên tố.<br>Vậy <b>23</b> không thể là tổng của hai số nguyên tố.`}
+  ]
+},
+{
+  topic:"Buổi 2 — Đại số",
+  questions:[
+  {q:"x = 1 − √2 là nghiệm của phương trình nào?",o:["x² − 2x + 1 = 0","x² − 2x − 1 = 0","x² − x − 1 = 0","x² + x + 1 = 0"],a:1,
+   s:`x − 1 = −√2 → (x − 1)² = 2<br>x² − 2x + 1 = 2 → <b>x² − 2x − 1 = 0</b>.`},
+  {q:`Tìm x biết |x| = −${F('1','x')}`,o:["1","−1","2","0"],a:1,
+   s:`Điều kiện x ≠ 0. Vì |x| &gt; 0 nên −${F('1','x')} &gt; 0 → x &lt; 0 → |x| = −x.<br>−x = −${F('1','x')} → x² = 1 → x = ±1; chọn x &lt; 0 → <b>x = −1</b>.`},
+  {q:"Nếu x = a + 2 và b = x + 1 thì khẳng định nào sau đây đúng?",o:["a = b + 3","a < b","a > b","a = b"],a:1,
+   s:`b = x + 1 = (a + 2) + 1 = a + 3 → a = b − 3.<br>Vì b − a = 3 &gt; 0 nên <b>a &lt; b</b>.`},
+  {q:"Nếu bc + ac = 5 và ab + ac = −3 thì bc − ab bằng:",o:["2","3","5","8"],a:3,
+   s:`bc − ab = (bc + ac) − (ab + ac) = 5 − (−3) = <b>8</b>.`},
+  {q:`Nếu ${F('x','a')} = 4; ${F('a','y')} = 6; a² = 9 và ab² = −8 thì x + 2y bằng:`,o:["−2","−10","−13","−5"],a:2,
+   s:`x = 4a; y = ${F('a','6')}.<br>a² = 9 → a = ±3. Vì ab² = −8 &lt; 0 và b² &gt; 0 nên a &lt; 0 → a = −3.<br>x + 2y = 4a + ${F('a','3')} = −12 + (−1) = <b>−13</b>.`},
+  {q:`Nếu x ∗ y = ${F('2x','3y')} với mọi số thực x, y > 0 thì (3 ∗ 2) + (2 ∗ 1) bằng:`,o:[F('4','3'),"1",F('7','3'),F('2','3')],a:2,
+   s:`3 ∗ 2 = ${F('2·3','3·2')} = 1.<br>2 ∗ 1 = ${F('2·2','3·1')} = ${F('4','3')}.<br>Tổng = 1 + ${F('4','3')} = <b>${F('7','3')}</b>.`},
+  {q:"Nếu x∗ = 1 − x thì (1∗)∗ bằng:",o:["2","2 − x","1","0"],a:2,
+   s:`1∗ = 1 − 1 = 0.<br>(1∗)∗ = 0∗ = 1 − 0 = <b>1</b>.`},
+  {q:"Giá trị của x − 1 là bao nhiêu nếu: (i) x + 1 = 3; (ii) x − 1 < 3. Để trả lời câu hỏi trên thì:",o:["(i) đủ để trả lời nhưng (ii) không đủ","Phải cả (i) và (ii) mới đủ để trả lời","(ii) đủ để trả lời nhưng (i) không đủ","Chỉ cần dùng một trong hai mệnh đề (i) và (ii) là đủ"],a:0,
+   s:`(i): x + 1 = 3 → x = 2 → x − 1 = 1 → xác định được giá trị.<br>(ii): chỉ cho bất đẳng thức x − 1 &lt; 3 → vô số giá trị.<br>Vậy <b>(i) đủ, (ii) không đủ</b>.`},
+  {q:"Một hình chữ nhật có chiều dài tăng 3 lần và chiều rộng tăng 50% thì diện tích tăng lên bao nhiêu lần?",o:["2","4","4,5","5,5"],a:2,
+   s:`S' = (3a) × (1,5b) = 4,5 × ab.<br>Diện tích tăng <b>4,5 lần</b>.`},
+  {q:"Một cánh đồng vụ này được mở rộng diện tích thêm 20% so với vụ trước, nhưng do thời tiết nên năng suất vụ này giảm 20% so với vụ trước. Hỏi sản lượng thóc thu được vụ này tăng hay giảm bao nhiêu phần trăm so với vụ trước?",o:["giảm 4%","tăng 4%","giảm 20%","tăng 20%"],a:0,
+   s:`Sản lượng = Diện tích × Năng suất.<br>1,2 × 0,8 = 0,96 = 96% → <b>giảm 4%</b>.`},
+  {q:"Nam đi bộ đến trường. Nếu bạn ấy đi với vận tốc 40m/phút thì đến trường muộn 5 phút. Nếu đi với vận tốc 60m/phút thì đến trường sớm hơn 3 phút so với giờ vào lớp. Hỏi khoảng cách từ nhà Nam đến trường là bao nhiêu?",o:["940m","960m","980m","1km"],a:1,
+   s:`Gọi x (phút) là thời gian quy định.<br>40(x + 5) = 60(x − 3) → 40x + 200 = 60x − 180<br>20x = 380 → x = 19.<br>S = 40 × (19 + 5) = <b>960m</b>.`},
+  {q:"Ban đầu Hùng có số tiền gấp đôi số tiền của Hà. Sau khi Hùng cho Hà 12 nghìn đồng thì số tiền của Hùng nhiều hơn số tiền của Hà 10 nghìn đồng. Hỏi cả hai người ban đầu có bao nhiêu tiền?",o:["92 nghìn đồng","66 nghìn đồng","102 nghìn đồng","68 nghìn đồng"],a:2,
+   s:`Hà = x, Hùng = 2x.<br>Sau: (2x − 12) − (x + 12) = 10 → x − 24 = 10 → x = 34.<br>Tổng = x + 2x = 3 × 34 = <b>102 nghìn đồng</b>.`},
+  {q:"Hai bể chứa 4500 lít nước. Nếu tháo bể thứ nhất 500 lít và tháo bể thứ hai 1000 lít thì số nước còn lại ở hai bể bằng nhau. Hỏi ban đầu bể thứ nhất chứa bao nhiêu lít nước?",o:["2000","2500","3000","3500"],a:0,
+   s:`x + y = 4500; x − 500 = y − 1000 → x − y = −500.<br>Cộng hai phương trình: 2x = 4000 → x = <b>2000 lít</b>.`},
+  {q:"Giá vé vào thăm viện bảo tàng là 10 nghìn đồng đối với người lớn và 5 nghìn đồng đối với trẻ em. Một đoàn tham quan gồm 30 người có tổng tiền vé là 175 nghìn đồng. Hỏi đoàn thăm quan đó có bao nhiêu người lớn?",o:["4","5","6","7"],a:1,
+   s:`Gọi a là số người lớn: 10a + 5(30 − a) = 175<br>5a + 150 = 175 → a = <b>5</b>.`},
+  {q:`Tổng số tuổi của hai anh em là 30 tuổi. Biết tuổi em bằng ${F('2','3')} tuổi anh. Tuổi em hiện nay là bao nhiêu?`,o:["6","10","12","18"],a:2,
+   s:`Anh = a, em = ${F('2','3')}a → a + ${F('2','3')}a = 30 → ${F('5','3')}a = 30 → a = 18.<br>Em = 30 − 18 = <b>12 tuổi</b>.`},
+  {q:`Trung bình cộng của hai số là ${F('7','12')}. Nếu tăng số thứ hai lên gấp 3 lần và giữ nguyên số thứ nhất thì được hai số mới có trung bình cộng là ${F('5','4')}. Tìm số thứ nhất.`,o:[F('1','2'),F('2','3'),F('3','4'),F('4','5')],a:0,
+   s:`x + y = ${F('7','6')} và x + 3y = ${F('5','2')}.<br>Trừ: 2y = ${F('5','2')} − ${F('7','6')} = ${F('4','3')} → y = ${F('2','3')}.<br>x = ${F('7','6')} − ${F('2','3')} = <b>${F('1','2')}</b>.`},
+  {q:`Tỉ lệ trâu và bò trong một nông trại là ${F('4','7')}. Mỗi con bò cần 230kg thức ăn trong một tuần nên trang trại cần 12880kg thức ăn cho bò trong một tuần. Vậy số lượng trâu trong trang trại là bao nhiêu?`,o:["19","32","29","45"],a:1,
+   s:`Số bò = 12880 : 230 = 56.<br>Số trâu = 56 × ${F('4','7')} = <b>32</b>.`},
+  {q:"An nghĩ ra một số, An đã tăng số đó thêm 25%. Hỏi An phải giảm số mới bao nhiêu phần trăm để được kết quả đúng bằng số ban đầu?",o:["25%","20%","80%","30%"],a:1,
+   s:`Số mới = 1,25x. Cần giảm về x: ${F('1,25x − x','1,25x')} = ${F('0,25','1,25')} = 0,2 = <b>20%</b>.`},
+  {q:"Toàn bộ 40 tivi loại X và 80 tivi loại Y được mua cho một khách sạn. Đơn giá tivi loại Y gấp hai lần đơn giá tivi loại X thì giá của một tivi loại X chiếm bao nhiêu phần trăm trong tổng giá trị hóa đơn?",o:["0,25%","0,625%","0,5%","1,0%"],a:2,
+   s:`Giá X = a → giá Y = 2a.<br>Tổng hóa đơn = 40a + 80 × 2a = 200a.<br>Tỉ lệ = ${F('a','200a')} × 100% = <b>0,5%</b>.`},
+  {q:"Ngày thường giá mỗi vé xem phim là 60000 đồng. Ngày 14/2, do giảm giá vé nên số vé bán được tăng thêm 50% và tổng số tiền bán vé thu được cũng tăng thêm 25%. Hỏi giá bán mỗi vé ngày 14/2 là bao nhiêu?",o:["50000 đồng","57000 đồng","55000 đồng","45000 đồng"],a:0,
+   s:`Gọi x là số vé ngày thường, p là giá mới.<br>1,5x · p = 1,25 · (60000x) → p = ${F('75000','1,5')} = <b>50000 đồng</b>.`},
+  {q:`Cho tập hợp M = {${F('1','3')}; ${F('2','3')}; ${F('5','6')}; ${F('4','5')}} và x, y là hai phần tử của M. Hỏi giá trị lớn nhất có thể của 4x − 4y bằng bao nhiêu?`,o:[F('28','15'),F('7','15'),F('10','3'),"2"],a:3,
+   s:`4x − 4y = 4(x − y) lớn nhất khi x lớn nhất, y nhỏ nhất.<br>x = ${F('5','6')}; y = ${F('1','3')} → 4(${F('5','6')} − ${F('1','3')}) = 4 · ${F('1','2')} = <b>2</b>.`},
+  {q:"Nếu b < 2 và 2x − 3b = 0 thì biểu thức nào sau đây đúng?",o:["x > −3","x = 3","x < 2","x < 3"],a:3,
+   s:`2x = 3b → b = ${F('2x','3')}.<br>b &lt; 2 → ${F('2x','3')} &lt; 2 → 2x &lt; 6 → <b>x &lt; 3</b>.`},
+  {q:"Biết rằng xy > 0, bất đẳng thức nào sau đây chắc chắn đúng?",o:["x > 0","y > 0",F('x','y')+" > 0","x + y > 0"],a:2,
+   s:`xy &gt; 0 nghĩa là x, y cùng dấu (cùng dương hoặc cùng âm).<br>Khi đó thương ${F('x','y')} luôn dương → <b>${F('x','y')} &gt; 0</b>.<br>Các đáp án khác sai khi x, y cùng âm.`},
+  {q:`Tỉ số của hai số là ${F('7','12')}, thêm 10 vào số thứ nhất thì tỉ số của chúng là ${F('3','4')}. Tổng của hai số là:`,o:["35","60","95","45"],a:2,
+   s:`${F('x','y')} = ${F('7','12')} → x = ${F('7y','12')}.<br>${F('x + 10','y')} = ${F('3','4')} → ${F('7y','12')} + 10 = ${F('3y','4')} → 10 = ${F('2y','12')} = ${F('y','6')} → y = 60; x = 35.<br>Tổng = <b>95</b>.`},
+  {q:"Người thứ nhất hoàn thành công việc hết 3 giờ, người thứ hai hoàn thành công việc đó hết 4 giờ. Nếu hai người cùng làm chung thì hết mấy giờ sẽ hoàn thành? (Năng suất hai người như nhau khi làm riêng)",o:[F('12','7'),"7",F('7','2'),F('3','4')],a:0,
+   s:`Năng suất chung = ${F('1','3')} + ${F('1','4')} = ${F('7','12')} (công việc/giờ).<br>Thời gian = 1 : ${F('7','12')} = <b>${F('12','7')} giờ</b>.`},
+  {q:"Nhân ngày 8/3, một cửa hàng bán đồ lưu niệm bán hạ giá 10% so với ngày thường. Tuy vậy họ vẫn lãi 8% so với giá vốn. Hỏi ngày thường họ lãi bao nhiêu phần trăm so với giá vốn?",o:["12%","20%","18%","8%"],a:1,
+   s:`Giá vốn = y, giá ngày thường = x.<br>0,9x = 1,08y → x = 1,2y.<br>Lãi ngày thường = ${F('1,2y − y','y')} = <b>20%</b>.`},
+  {q:"Lượng muối chứa trong nước biển là 5%. Cần phải đổ thêm vào 200kg nước biển bao nhiêu kg nước lã để được một loại dung dịch chứa 2% muối?",o:["200kg","300kg","400kg","500kg"],a:1,
+   s:`Lượng muối = 200 × 5% = 10kg (không đổi).<br>Khối lượng dung dịch mới = 10 : 2% = 500kg.<br>Nước lã thêm = 500 − 200 = <b>300kg</b>.`}
+  ]
+},
+{
+  topic:"Buổi 3 — Hàm số & Dãy số",
+  questions:[
+  {q:`Tập xác định của hàm số ${F('−x² + 2x','x² + 1')} là tập hợp nào sau đây?`,o:["R \\ {−1}","R \\ {±1}","R \\ {1}","R"],a:3,
+   s:`Điều kiện: x² + 1 ≠ 0.<br>Vì x² ≥ 0 nên x² + 1 ≥ 1 &gt; 0 với mọi x.<br>Vậy tập xác định là <b>R</b>.`},
+  {q:`Cho hàm số y = f(x) = ${F('2x − 5','x² − 4x + 3')}. Khẳng định nào sau đây đúng?`,
+   o:["f(−1) = 4; f(3) = 0","f(0) = "+F('−5','3')+"; f(1) = "+F('1','3'),"f(0) = "+F('−5','3')+"; f(1) không xác định","Tất cả các câu trên đều đúng"],a:2,
+   s:`Mẫu: x² − 4x + 3 = (x − 1)(x − 3) → hàm không xác định tại x = 1 và x = 3.<br>f(0) = ${F('−5','3')} ✔ · f(1) <b>không xác định</b> ✔<br>Vậy chọn C.`},
+  {q:"Cho hàm số y = f(x) = |5x|. Khẳng định nào sau đây sai?",o:["f(2) = 10","f(−2) = 10","f(1/5) = −1","f(−1) = 5"],a:2,
+   s:`|5 · 2| = 10 ✔ · |5 · (−2)| = 10 ✔ · |5 · (−1)| = 5 ✔<br>f(${F('1','5')}) = |5 · ${F('1','5')}| = 1 ≠ −1 → <b>khẳng định C sai</b> (giá trị tuyệt đối không âm).`},
+  {q:`Cho f(x) = √x − 1. Nếu 5f(a) = 15 thì f(${F('a','4')}) bằng:`,o:["2","1","4","3"],a:1,
+   s:`5f(a) = 15 → f(a) = 3 → √a − 1 = 3 → √a = 4 → a = 16.<br>f(${F('16','4')}) = f(4) = √4 − 1 = <b>1</b>.`},
+  {q:"Nếu f(x) = x² + 2x − 2 và f(s − 1) = 1 thì giá trị lớn nhất có thể của s là bao nhiêu?",o:["−2","−3","3","2"],a:3,
+   s:`(s − 1)² + 2(s − 1) − 2 = 1<br>s² − 2s + 1 + 2s − 2 − 2 = 1 → s² − 3 = 1 → s² = 4 → s = ±2.<br>Giá trị lớn nhất: <b>s = 2</b>.`},
+  {q:"Nếu g(x) = 3x + √x thì giá trị của g(a² + 2a + 1) là:",
+   o:["3a² + 7a + 4 hoặc 3a² + 5a + 2","3a² − 7a + 4 hoặc 3a² + 5a + 2","3a² + 7a + 4 hoặc 3a² − 5a + 2","3a² − 7a − 4 hoặc 3a² + 5a + 2"],a:0,
+   s:`a² + 2a + 1 = (a + 1)² → √((a+1)²) = |a + 1| = ±(a + 1).<br>g = 3(a + 1)² ± (a + 1) = (3a² + 6a + 3) ± (a + 1)<br>→ <b>3a² + 7a + 4</b> hoặc <b>3a² + 5a + 2</b>.`},
+  {q:"Nếu f(x) = 3x³ và g(x) = 2x thì giá trị của f(g(−2)) − g(f(−2)) bằng bao nhiêu?",o:["−192","48","−240","−144"],a:3,
+   s:`g(−2) = −4 → f(−4) = 3(−4)³ = −192.<br>f(−2) = 3(−2)³ = −24 → g(−24) = −48.<br>Hiệu = −192 − (−48) = <b>−144</b>.`},
+  {q:`Cho hàm số y = f(x) = { ${F('2','x−1')} khi x ∈ (−∞; 0) ; √(x+1) khi x ∈ [0; 2] ; x² − 1 khi x ∈ (2; 5] }. Khi đó f(4) bằng:`,o:["15","√5","3",F('2','3')],a:0,
+   s:`4 ∈ (2; 5] → dùng nhánh x² − 1.<br>f(4) = 4² − 1 = <b>15</b>.`},
+  {q:`Cho hàm số f(x) = { ${F('2√(x+2) − 3','x − 1')} khi x ≥ 2 ; x² + 1 khi x < 2 }. Khi đó f(2) + f(−2) bằng:`,o:[F('5','3'),F('8','3'),"4","6"],a:3,
+   s:`f(2) = ${F('2√4 − 3','2 − 1')} = ${F('4 − 3','1')} = 1.<br>f(−2) = (−2)² + 1 = 5.<br>Tổng = 1 + 5 = <b>6</b>.`},
+  {q:"Nếu x > 0 và x = 5y thì √(x² − 2xy + y²) bằng:",o:["−4y","2y","4y","16y"],a:2,
+   s:`x² − 2xy + y² = (x − y)² → √ = |x − y|.<br>x = 5y &gt; 0 → y &gt; 0 → x − y = 5y − y = 4y &gt; 0.<br>Vậy kết quả là <b>4y</b>.`},
+  {q:"Cho dãy số 1; 4; 7; 10; …; 100. Tổng của dãy trên là:",o:["1700","1715","1717","1721"],a:2,
+   s:`Cấp số cộng u₁ = 1, d = 3.<br>Số hạng: n = (100 − 1) : 3 + 1 = 34.<br>Tổng = ${F('34 × (1 + 100)','2')} = 17 × 101 = <b>1717</b>.`},
+  {q:"Cho dãy số 0; 2; 4; 6; 8; 10; … Số hạng thứ 2022 của dãy trên là:",o:["4042","4044","4046","4048"],a:0,
+   s:`u₁ = 0, d = 2 → uₙ = 0 + (n − 1)·2.<br>u₂₀₂₂ = 2 × 2021 = <b>4042</b>.`},
+  {q:"Cho dãy số: 4; 7; 10; …; 31; 34; … Tìm số hạng thứ 101 trong dãy.",o:["298","301","304","295"],a:2,
+   s:`u₁ = 4, d = 3 → u₁₀₁ = 4 + 100 × 3 = <b>304</b>.`},
+  {q:"Tổng các số nguyên chẵn từ 24 cho đến 154 là bằng:",o:["5874","4576","5621","4878"],a:0,
+   s:`Số hạng: n = (154 − 24) : 2 + 1 = 66.<br>Tổng = ${F('66 × (24 + 154)','2')} = 33 × 178 = <b>5874</b>.`},
+  {q:"Có một số cây xanh được trồng ven đường với khoảng cách giữa các cây là 3m. Hỏi từ cây thứ 9 cách cây thứ 45 bao nhiêu mét?",o:["105m","108m","111m","114m"],a:1,
+   s:`Số khoảng cách = 45 − 9 = 36.<br>36 × 3 = <b>108m</b>.`},
+  {q:"Một dãy phố có 25 nhà. Số nhà của 25 nhà đó được đánh là các số chẵn liên tiếp, biết tổng của 25 số nhà của dãy phố đó bằng 1400. Hãy cho biết số nhà đầu tiên và số nhà cuối cùng của dãy phố đó là số nào.",o:["30; 78","32; 80","34; 82","36; 84"],a:1,
+   s:`Trung bình = 1400 : 25 = 56 → đây là số nhà ở giữa (thứ 13).<br>Số đầu = 56 − 12 × 2 = 32; số cuối = 56 + 12 × 2 = 80.<br>→ <b>32; 80</b>.`},
+  {q:"Trong tuần đầu tiên của năm, Thu tiết kiệm được 1 USD. Mỗi tuần tiếp theo cô ấy tiết kiệm thêm 1 USD so với tuần trước. Vậy tổng số tiền tiết kiệm được của Thu trong 52 tuần là:",o:["1326 USD","1352 USD","1378 USD","2652 USD"],a:2,
+   s:`Tiết kiệm: 1; 2; 3; …; 52 USD.<br>Tổng = ${F('52 × 53','2')} = <b>1378 USD</b>.`},
+  {q:"Người ta trồng 3003 cây theo hình tam giác như sau: hàng thứ nhất có 1 cây, hàng thứ hai có 2 cây, hàng thứ 3 có 3 cây… Hỏi trồng được bao nhiêu hàng cây theo cách này?",o:["76","77","78","79"],a:1,
+   s:`${F('n(n + 1)','2')} = 3003 → n² + n − 6006 = 0.<br>Δ = 1 + 24024 = 24025 = 155² → n = ${F('−1 + 155','2')} = <b>77 hàng</b>.`},
+  {q:"Người ta thiết kế một cái tháp gồm 11 tầng. Diện tích mặt trần của mỗi tầng bằng nửa diện tích mặt trần của tầng ngay bên dưới, và diện tích mặt trần của tầng 1 là 12288m². Tính diện tích mặt trần trên cùng.",o:["6m²","8m²","10m²","12m²"],a:3,
+   s:`Cấp số nhân: u₁ = 12288, q = ${F('1','2')}.<br>u₁₁ = 12288 × (${F('1','2')})¹⁰ = ${F('12288','1024')} = <b>12m²</b>.`},
+  {q:"Một cửa hàng kinh doanh, ban đầu mặt hàng A có giá 100 nghìn đồng. Sau một thời gian, cửa hàng tăng giá mặt hàng A lên 10%. Sau đó, cửa hàng lại tiếp tục tăng giá mặt hàng đó lên 10%. Hỏi giá của mặt hàng này sau 2 lần tăng giá là bao nhiêu?",o:["120 nghìn đồng","121 nghìn đồng","122 nghìn đồng","125 nghìn đồng"],a:1,
+   s:`100 × 1,1 = 110 → 110 × 1,1 = <b>121 nghìn đồng</b>.<br>(Tổng quát: 100 × 1,1² = 121)`}
+  ]
+}
+];
+
+const KEYS = ["A","B","C","D"];
+const list = document.getElementById('list');
+const tabsEl = document.getElementById('tabs');
+let current = 0;
+const state = DATA.map(t => t.questions.map(()=>({picked:null, shown:false})));
+
+DATA.forEach((t,i)=>{
+  const b = document.createElement('button');
+  b.className='tab'; b.type='button'; b.role='tab';
+  b.textContent = `${t.topic} (${t.questions.length})`;
+  b.setAttribute('aria-selected', i===0);
+  b.onclick = ()=>{ current=i; render(); window.scrollTo({top:0,behavior:'smooth'}); };
+  tabsEl.appendChild(b);
+});
+
+function render(){
+  [...tabsEl.children].forEach((b,i)=>b.setAttribute('aria-selected', i===current));
+  const topic = DATA[current], st = state[current];
+  list.innerHTML = '';
+  topic.questions.forEach((q,qi)=>{
+    const card = document.createElement('section');
+    card.className = 'q';
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">Câu ${qi+1}</span>
+        <div class="qtext">${q.q}</div>
+      </div>
+      <div class="opts"></div>
+      <div class="acts">
+        <button class="btn btn-sol" type="button">Xem lời giải</button>
+        <span class="verdict"></span>
+      </div>
+      <div class="sol" hidden>
+        <h4>Lời giải chi tiết</h4>
+        <p>${q.s}</p>
+        <p class="ans">Đáp án: ${KEYS[q.a]}. ${q.o[q.a]}</p>
+      </div>`;
+    const optsEl = card.querySelector('.opts');
+    const solEl  = card.querySelector('.sol');
+    const vEl    = card.querySelector('.verdict');
+    const solBtn = card.querySelector('.btn-sol');
+
+    q.o.forEach((text,oi)=>{
+      const btn = document.createElement('button');
+      btn.type='button'; btn.className='opt';
+      btn.innerHTML = `<span class="key">${KEYS[oi]}.</span><span>${text}</span>`;
+      btn.onclick = ()=>{ if(st[qi].picked!==null) return; st[qi].picked = oi; paint(); update(); };
+      optsEl.appendChild(btn);
+    });
+
+    solBtn.onclick = ()=>{
+      st[qi].shown = !st[qi].shown;
+      solEl.hidden = !st[qi].shown;
+      solBtn.textContent = st[qi].shown ? 'Ẩn lời giải' : 'Xem lời giải';
+    };
+
+    function paint(){
+      const p = st[qi].picked;
+      [...optsEl.children].forEach((b,oi)=>{
+        b.classList.remove('correct','wrong');
+        b.disabled = p!==null;
+        if(p!==null){
+          if(oi===q.a) b.classList.add('correct');
+          else if(oi===p) b.classList.add('wrong');
+        }
+      });
+      if(p===null){ vEl.textContent=''; vEl.className='verdict'; }
+      else if(p===q.a){ vEl.textContent='✓ Chính xác'; vEl.className='verdict ok'; }
+      else { vEl.textContent=`✗ Sai — đáp án đúng là ${KEYS[q.a]}`; vEl.className='verdict no'; }
+    }
+    paint();
+    if(st[qi].shown){ solEl.hidden=false; solBtn.textContent='Ẩn lời giải'; }
+    list.appendChild(card);
+  });
+  update();
+}
+
+function update(){
+  const st = state[current], qs = DATA[current].questions;
+  const done = st.filter(s=>s.picked!==null).length;
+  const ok = st.filter((s,i)=>s.picked===qs[i].a).length;
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('totalCount').textContent = qs.length;
+  document.getElementById('okCount').textContent = ok;
+  document.getElementById('barFill').style.width = (done/qs.length*100)+'%';
+  const box = document.getElementById('doneBox');
+  if(done===qs.length){
+    box.hidden=false;
+    box.textContent = `Hoàn thành! Bạn đúng ${ok}/${qs.length} câu (${Math.round(ok/qs.length*100)}%).`;
+  } else box.hidden=true;
+}
+
+document.getElementById('reset').onclick = ()=>{
+  state[current] = DATA[current].questions.map(()=>({picked:null,shown:false}));
+  render();
+};
+document.getElementById('showAll').onclick = ()=>{
+  const anyHidden = state[current].some(s=>!s.shown);
+  state[current].forEach(s=>s.shown = anyHidden);
+  document.getElementById('showAll').textContent = anyHidden ? 'Ẩn tất cả lời giải' : 'Hiện tất cả lời giải';
+  render();
+};
+
+render();
+</script>
+</body>
+</html>
